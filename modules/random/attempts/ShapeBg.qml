@@ -10,7 +10,7 @@ Shape {
 	ShapePath {
 		strokeWidth: 0
 		id: bg
-		fillColor: Qt.rgba(1, 1, 1, 0.05)
+		fillColor: Qt.rgba(1, 1, 1, 0.5)
 		startX: 0
 		startY: Quickshell.screens[1].height/2
 
@@ -66,7 +66,7 @@ Shape {
 		}
 
 		PathLine {x: bg.thinWidth; y: bg.screenH/2}	
-		PathLine {x: 0; y: bg.screenH/2}	
+		PathLine {x: 0; y: bg.screenH/2}
 
 
 	}

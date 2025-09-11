@@ -1,5 +1,6 @@
 pragma ComponentBehavior: Bound
 
+import QtQuick
 import Quickshell
 import Quickshell.Wayland
 
@@ -11,11 +12,11 @@ import "S3wClone.qml"
 LazyLoader {
 	id: initLoader
 	active: true
-	property real fps: 165
+	property real fps: 10
 
 	Variants{
 		model: Quickshell.screens
-		delegate: PanelWindow {
+		delegate:PanelWindow {
 			id: panel;
 			required property var modelData
 			color: "transparent"
@@ -30,14 +31,10 @@ LazyLoader {
 			anchors.bottom: true
 			anchors.left: true
 			anchors.right: true
-
+			
 			S3wClone {}
-		}
-
+		}	
 	}
-
-	onLoadingChanged: Qt.application.updateInterval = 1000 / initLoader.fps // 16 ms ≈ 60 FPS
-	
 }
 	
 

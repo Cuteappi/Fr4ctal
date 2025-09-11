@@ -67,14 +67,14 @@ Item{
 			ctx.clip("evenodd");
 			
 
-			if (myImage.status === Image.Ready) {
-				ctx.drawImage(myImage, 0, 0, screenW, screenH);
-				ctx.fillStyle = "rgba(70, 130, 180, 0)"
-				ctx.fill()
-			} else {
+			// if (myImage.status === Image.Ready) {
+			// 	ctx.drawImage(myImage, 0, 0, screenW, screenH);
+			// 	ctx.fillStyle = "rgba(70, 130, 180, 0.5)"
+			// 	ctx.fill()
+			// } else {
 				ctx.fillStyle = "rgba(70, 130, 180, 0.7)"
 				ctx.fill()
-			}
+			// }
 
 			
 				// fallback fill if no image
