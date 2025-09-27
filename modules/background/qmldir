@@ -8,4 +8,5 @@ BgPath 1.0 BgPath.qml
 BgLayout 1.0 BgLayout.qml
 BgMaskRegion 1.0 BgMaskRegion.qml
 BezierRectangle 1.0 BezierRectangle.qml
+Fps 1.0 Fps.qml
 

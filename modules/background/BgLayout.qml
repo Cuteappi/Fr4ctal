@@ -17,7 +17,7 @@ Item {
 
         property var resolution: Qt.size(parent.width, parent.height)
 
-        property real blending: 0.1
+        property real blending: 0.05
         property real softness: 0
         property var color: Qt.rgba(0.84, 0.94, 0.78,)
 
@@ -43,6 +43,7 @@ Item {
             duration: 8000 // 4 seconds
             loops: Animation.Infinite // Loop forever
             running: true
+            easing.type: Easing.InOutBack
         }
     }
 

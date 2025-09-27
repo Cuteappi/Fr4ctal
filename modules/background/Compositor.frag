@@ -227,26 +227,24 @@ float smin(float a, float b, float k) {
     return mix(b, a, h) - k * h * (1.0 - h);
 }
 
-float calcMainRectangle(vec2 uv) {
-    // main inverted rectangle
 
-    // --- Calculate geometry for THIS rectangle ---
-    vec2 norm_start = (2.0 * ubuf.main_sp - ubuf.resolution.xy) / ubuf.resolution.y;
-    vec2 norm_end   = (2.0 * ubuf.main_ep   - ubuf.resolution.xy) / ubuf.resolution.y;
+float bezierRectancle(vec2 uv, vec2 start, vec2 end, float radius, float rounding_strength, int inverted) {
+
+    vec2 norm_start = (2.0 * start - ubuf.resolution.xy) / ubuf.resolution.y;
+    vec2 norm_end   = (2.0 * end   - ubuf.resolution.xy) / ubuf.resolution.y;
     vec2 center = (norm_start + norm_end) * 0.5;
     vec2 half_size = abs(norm_end - norm_start) * 0.5;
-    vec2 pixel_size = abs(ubuf.main_ep - ubuf.main_sp);
+    vec2 pixel_size = abs(end - start);
 
     // Calculate the radius in pixels
     float smaller_side_pixels = min(pixel_size.x, pixel_size.y) / 2.0;
-    float final_radius_pixels = smaller_side_pixels * ubuf.main_radius;
-    // --- End of geometry calculation ---
+    float final_radius_pixels = smaller_side_pixels * radius;
 
     // Calculate the signed distance for this rectangle
-    float d = sdRoundedRect(uv - center, half_size, final_radius_pixels, ubuf.main_rstrength);
+    float d = sdRoundedRect(uv - center, half_size, final_radius_pixels, rounding_strength);
 
     // Invert the distance if the flag is set for this specific rectangle
-    if (ubuf.main_inverted == 1) {
+    if (inverted == 1) {
         d = -d;
     }
     return d;
@@ -255,11 +253,11 @@ float calcMainRectangle(vec2 uv) {
 float calcMovingCircle(vec2 uv) {
     // 1. Define the base position: bottom center of the screen.
     // In our normalized coordinates, this is (0.0, -1.0).
-    vec2 circle_center = vec2(0.0, -1.0);
+    vec2 circle_center = vec2(0.0, 1.0);
 
     // 2. Animate the Y position up and down using a sine wave based on time.
     // The sine wave moves between -1 and 1. We'll scale it to control the range.
-    circle_center.y += (sin(ubuf.time) + 1.0) * 0.75; // Moves between [-1, 0.5] range
+    circle_center.y += (sin(ubuf.time) - 1.0) * 0.1; // Moves between [-1, 0.5] range
 
     // 3. Convert the circle's radius from pixels to normalized coordinates.
     float scaled_radius = ubuf.circle_radius / ubuf.resolution.y;
@@ -275,7 +273,7 @@ void main() {
     float final_dist = 1000.0; // Start with "infinity"
 
     // 1. Calculate the main rectangle's distance field
-    float d_rect = calcMainRectangle(uv);
+    float d_rect = bezierRectancle(uv, ubuf.main_sp, ubuf.main_ep, ubuf.main_radius, ubuf.main_rstrength, ubuf.main_inverted);
 
     // 2. Calculate the moving circle's distance field
     float d_circle = calcMovingCircle(uv);
