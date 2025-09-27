@@ -1,0 +1,7 @@
+module Globals
+
+singleton Signals Signals.qml
+singleton Globals Globals.qml
+
+Shortcuts Shortcuts.qml
+

@@ -1,0 +1,11 @@
+module Background
+
+singleton BgSettings BgSettings.qml
+singleton BgShapesSettings BgShapesSettings.qml
+
+BgWindow 1.0 BgWindow.qml
+BgPath 1.0 BgPath.qml
+BgLayout 1.0 BgLayout.qml
+BgMaskRegion 1.0 BgMaskRegion.qml
+BezierRectangle 1.0 BezierRectangle.qml
+

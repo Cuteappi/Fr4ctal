@@ -12,7 +12,7 @@ import "S3wClone.qml"
 LazyLoader {
 	id: initLoader
 	active: true
-	property real fps: 10
+	// property real fps: 10
 
 	Variants{
 		model: Quickshell.screens
@@ -23,7 +23,7 @@ LazyLoader {
 
 			screen: modelData
 
-			WlrLayershell.layer: WlrLayer.Bottom
+			WlrLayershell.layer: WlrLayer.Background
 			WlrLayershell.namespace: "orion"
 			WlrLayershell.exclusionMode: ExclusionMode.Ignore
 

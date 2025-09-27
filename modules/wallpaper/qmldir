@@ -1,0 +1,6 @@
+module Wallpaper
+
+singleton WallpaperSettings WallpaperSettings.qml
+
+Wallpaper 1.0 Wallpaper.qml
+S3wClone 1.0 S3wClone.qml
