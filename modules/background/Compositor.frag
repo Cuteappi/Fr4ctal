@@ -16,6 +16,7 @@ layout(std140, binding = 0) uniform buf {
 	float blending;
     float softness;
     vec3 color;
+    float antialiasing;
 
     //main rectangle settings
     vec2 main_sp;
@@ -24,9 +25,22 @@ layout(std140, binding = 0) uniform buf {
     float main_rstrength;
     int main_inverted;
 
-    // --- NEW UNIFORMS ---
-    float time;          // For animation
-    float circle_radius;   // Radius of the circle in pixels
+    //wallpaper visible
+    int wall_visible;
+
+    //Main wallpaper rectangle
+    vec2 mwall_sp;
+    vec2 mwall_ep;
+    float mwall_radius;
+    float mwall_rstrength;
+    int mwall_inverted;
+    
+    //Bottom wallpaper rectangle
+    vec2 bwall_sp;
+    vec2 bwall_ep;
+    float bwall_radius;
+    float bwall_rstrength;
+    int bwall_inverted;
 
 } ubuf;
 
@@ -250,40 +264,47 @@ float bezierRectancle(vec2 uv, vec2 start, vec2 end, float radius, float roundin
     return d;
 }
 
-float calcMovingCircle(vec2 uv) {
-    // 1. Define the base position: bottom center of the screen.
-    // In our normalized coordinates, this is (0.0, -1.0).
-    vec2 circle_center = vec2(0.0, 1.0);
-
-    // 2. Animate the Y position up and down using a sine wave based on time.
-    // The sine wave moves between -1 and 1. We'll scale it to control the range.
-    circle_center.y += (sin(ubuf.time) - 1.0) * 0.1; // Moves between [-1, 0.5] range
-
-    // 3. Convert the circle's radius from pixels to normalized coordinates.
-    float scaled_radius = ubuf.circle_radius / ubuf.resolution.y;
-
-    // 4. Calculate and return the signed distance.
-    return sdCircle(uv - circle_center, scaled_radius);
-}
-
-
 void main() {
     vec2 uv = (2.0 * qt_TexCoord0.xy * ubuf.resolution.xy - ubuf.resolution.xy) / ubuf.resolution.y;
 
     float final_dist = 1000.0; // Start with "infinity"
 
     // 1. Calculate the main rectangle's distance field
-    float d_rect = bezierRectancle(uv, ubuf.main_sp, ubuf.main_ep, ubuf.main_radius, ubuf.main_rstrength, ubuf.main_inverted);
+    float main_rect = bezierRectancle(uv, ubuf.main_sp, ubuf.main_ep, ubuf.main_radius, ubuf.main_rstrength, ubuf.main_inverted);
 
-    // 2. Calculate the moving circle's distance field
-    float d_circle = calcMovingCircle(uv);
+    final_dist = smin(final_dist, main_rect, ubuf.blending);
+
+    if (ubuf.wall_visible == 1) {
+        float mwall_rect = bezierRectancle(
+            uv,
+            ubuf.mwall_sp,
+            ubuf.mwall_ep,
+            ubuf.mwall_radius,
+            ubuf.mwall_rstrength,
+            ubuf.mwall_inverted
+        );
+
+        float bwall_rect = bezierRectancle(
+            uv,
+            ubuf.bwall_sp,
+            ubuf.bwall_ep,
+            ubuf.bwall_radius,
+            ubuf.bwall_rstrength,
+            ubuf.bwall_inverted
+        );
+        final_dist = smin(final_dist, smin(mwall_rect, bwall_rect, ubuf.blending), ubuf.blending);
+    }
+
     
-    // Blend the result with the final distance field
-    // final_dist = smin(final_dist, calcMainRectangle(uv), ubuf.blending);
-    final_dist = smin(d_rect, d_circle, ubuf.blending);
+
+    // Output the encoded data.
+    // float r = max(final_dist, 0.0);
+    // float g = max(-final_dist, 0.0);
+
+    // fragColor = vec4(r, g, 0.0, 1.0);
 
     // 4. Antialiasing
-    float screen_pixel_width = fwidth(final_dist);
+    float screen_pixel_width = fwidth(final_dist) * ubuf.antialiasing;
     float alpha = smoothstep(screen_pixel_width, -screen_pixel_width, final_dist);
 
     // 5. Set the final output color (no change)

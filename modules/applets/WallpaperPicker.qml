@@ -7,6 +7,7 @@ import Qt.labs.folderlistmodel
 import Quickshell
 import "../wallpaper"
 import "../../components"
+import "../background"
 
 Loader {
 	id: loader
@@ -27,8 +28,8 @@ Loader {
 			
 			Item {
 				anchors.centerIn: parent
-				height: loader.screen.height * 0.6
-				width: loader.screen.width * 0.6
+				height: loader.screen.height * 0.6 
+				width: (loader.screen.width - BgSettings.rightWidth - BgSettings.leftWidth) * 0.6
 				
 				Item {
 					id: wallpaperImagePreviewContainer
@@ -124,6 +125,7 @@ Loader {
 
 				OpacityMask {
 					anchors.fill: parent
+					anchors.margins: 10
 					source: wallpaperImagePreviewContainer
 					maskSource: maskSource
 				}
@@ -185,13 +187,17 @@ Loader {
 					}
 				}
 			}
-			
-			Rectangle {
+
+			Item {
+				anchors.bottom: parent.bottom
+				anchors.horizontalCenter: parent.horizontalCenter
 				height: 25
 				width: loader.screen.width * 0.6
-				color: Qt.rgba(1, 0, 0, 0.05)
-				anchors.horizontalCenter: parent.horizontalCenter
-				anchors.bottom: parent.bottom
+
+				Text {
+					text: "Wallpaper"
+					anchors.centerIn: parent
+				}
 			}
 		}
 	}

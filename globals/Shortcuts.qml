@@ -7,7 +7,6 @@ Scope{
 		name: "wallpaperPicker"
 		description: "Toggle Wallpaper Picker"
 		onPressed: {
-			console.log("toggled")
 			Signals.wallpaperPickerToggled()
 		}
 	}

@@ -12,15 +12,15 @@ Region {
 	Region {
 		id: wallpaperPickerRegion
 		item: Rectangle {
-
-			
-
+			x: (root.screen.width - BgSettings.rightWidth - BgSettings.leftWidth) * 0.2 + BgSettings.leftWidth
+			y: root.screen.height * 0.2
+			height: root.screen.height * 0.6 
+			width: (root.screen.width - BgSettings.rightWidth - BgSettings.leftWidth) * 0.6
 
 
 			Connections{
 				target: Signals
 				function onWallpaperPickerToggled() {
-					console.log("from BgMaskRegion")
 					if (wallpaperPickerRegion.intersection == Intersection.Subtract) {
 						wallpaperPickerRegion.intersection = Intersection.Combine
 					} else {

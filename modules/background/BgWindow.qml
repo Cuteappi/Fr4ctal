@@ -16,6 +16,7 @@ LazyLoader {
 			id: panel;
 			required property var modelData
 			color: "transparent"
+			focusable: true
 
 			screen: modelData
 
@@ -23,10 +24,6 @@ LazyLoader {
 			WlrLayershell.namespace: "xyra"
 			WlrLayershell.exclusionMode: ExclusionMode.Ignore
 
-			Component.onCompleted: {
-				console.log("from BgWindow")
-				BgShapesSettings.screen = screen
-			}
 
 			Rectangle{
 				id: mask
