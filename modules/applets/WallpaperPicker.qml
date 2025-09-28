@@ -8,6 +8,7 @@ import Quickshell
 import "../wallpaper"
 import "../../components"
 import "../background"
+import "../../globals"
 
 Loader {
 	id: loader
@@ -23,13 +24,112 @@ Loader {
 	Component {
 		id: rect
 		Item{
+			id: root
 			visible: loader.visibility
 			anchors.fill: parent
+
+			Scope {
+				id: scope
+				function onFinished_nlv() {
+					anim.from = anim.endp
+					anim.to = anim.startp
+				}
+
+				function onFinished_nr() {
+					loader.visibility = false
+					anim.from = anim.startp
+					anim.to = anim.endp
+				}
+			}
+
+
+			Connections {
+				target: Signals
+				function onWallpaperPickerToggled() {
+					anim.finished.disconnect(scope.onFinished_nr)
+					anim.finished.disconnect(scope.onFinished_nlv)
+
+					if(!loader.visibility) {
+						// console.log("n vis")
+						loader.visibility = true
+						anim.reverse = true
+
+						anim.start()
+						
+						anim.finished.connect(scope.onFinished_nlv)
+						return
+					}
+					if(!anim.running) {
+						// console.log("n running")
+						anim.reverse = false
+						animDelay.start()
+
+						anim.finished.connect(scope.onFinished_nr)
+						return
+					}
+
+					if (anim.reverse) {
+						animDelay.stop()
+						anim.stop()
+
+						anim.from = wallpaperPickerContainer.anchors.verticalCenterOffset
+						anim.to = anim.startp
+
+						anim.reverse = false
+
+						animDelay.start()
+						anim.finished.connect(scope.onFinished_nr)
+						return
+
+					} else {
+						animDelay.stop()
+						anim.stop()
+
+						anim.from = wallpaperPickerContainer.anchors.verticalCenterOffset
+						anim.to = anim.endp
+
+						anim.reverse = true
+
+						anim.start()
+						anim.finished.connect(scope.onFinished_nlv)
+						return
+					}
+				}
+			}
+
+			NumberAnimation {
+				id: anim
+				property real startp: loader.screen.height * 0.8 + 60
+				property real endp: 0
+				property bool reverse: false
+
+				target: wallpaperPickerContainer
+				property: "anchors.verticalCenterOffset"
+				from: startp
+				to: endp
+				duration: 500
+				easing.amplitude: 1
+				easing.period: 1.5
+				easing.type: Easing.InOutCirc
+			}
+
+			Timer {
+				id: animDelay
+				interval: 100
+				running: false
+				repeat: false
+				onTriggered: {
+					anim.start()
+				}
+			}
 			
 			Item {
+				id: wallpaperPickerContainer
 				anchors.centerIn: parent
 				height: loader.screen.height * 0.6 
 				width: (loader.screen.width - BgSettings.rightWidth - BgSettings.leftWidth) * 0.6
+
+				anchors.verticalCenterOffset: loader.screen.height * 0.8 + 60
 				
 				Item {
 					id: wallpaperImagePreviewContainer
@@ -200,6 +300,7 @@ Loader {
 				}
 			}
 		}
+
 	}
 
 }

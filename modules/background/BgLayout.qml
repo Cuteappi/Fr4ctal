@@ -1,6 +1,5 @@
 
 import QtQuick
-import QtQuick.Effects
 import Qt5Compat.GraphicalEffects
 import Quickshell
 import "../../globals"
@@ -10,26 +9,48 @@ Item {
     anchors.fill: parent
     property ShellScreen screen
 
+
+    Scope {
+        id: scope
+        function swapStartEnd() {
+            if(sWallCtrl.reverse) {
+                bwallAnimation.from = bwallAnimation.endp
+                bwallAnimation.to = bwallAnimation.startp
+
+                mwallAnimation.from = mwallAnimation.endp
+                mwallAnimation.to = mwallAnimation.startp
+
+            } else {
+                bwallAnimation.from = bwallAnimation.startp
+                bwallAnimation.to = bwallAnimation.endp
+                
+                mwallAnimation.from = mwallAnimation.startp
+                mwallAnimation.to = mwallAnimation.endp
+            }
+        }
+
+        function onFinished_nlv(){
+            sWallCtrl.anim_running = false
+            swapStartEnd()
+        }
+
+        function onFinished_nr (){
+            sWallCtrl.isOpen = false
+            sWallCtrl.anim_running = false
+            swapStartEnd()
+        }
+    }
+
     Connections {
 		target: Signals
 		function onWallpaperPickerToggled() {
 
-            function swapStartEnd() {
-                if(sWallCtrl.reverse) {
-                    bwallAnimation.from = bwallAnimation.endp
-                    bwallAnimation.to = bwallAnimation.startp
+            bwallAnimation.finished.disconnect(scope.onFinished_nlv)
+            bwallAnimation.finished.disconnect(scope.onFinished_nr)
+            mwallAnimation.finished.disconnect(scope.onFinished_nlv)
+            mwallAnimation.finished.disconnect(scope.onFinished_nr)
 
-                    mwallAnimation.from = mwallAnimation.endp
-                    mwallAnimation.to = mwallAnimation.startp
 
-                } else {
-                    bwallAnimation.from = bwallAnimation.startp
-                    bwallAnimation.to = bwallAnimation.endp
-                    
-                    mwallAnimation.from = mwallAnimation.startp
-                    mwallAnimation.to = mwallAnimation.endp
-                }
-            }
             //opening if fully closed
             if (!sWallCtrl.isOpen) {
                 sWallCtrl.isOpen = true
@@ -39,12 +60,7 @@ Item {
                 mwallAnimation.start()
                 bwallDelay.start()
 
-                function onFinished (){
-                    sWallCtrl.anim_running = false
-                    swapStartEnd()
-                }
-                bwallAnimation.finished.connect(onFinished)
-                bwallAnimation.runningChanged.connect(() => bwallAnimation.finished.disconnect(onFinished))
+                bwallAnimation.finished.connect(scope.onFinished_nlv)
                 return 
                 
             }
@@ -58,17 +74,12 @@ Item {
                 bwallAnimation.start()
                 mwallDelay.start()
 
-                function onFinished (){
-                    sWallCtrl.isOpen = false
-                    sWallCtrl.anim_running = false
-                    swapStartEnd()
-                }
-                mwallAnimation.finished.connect(onFinished)
-                mwallAnimation.runningChanged.connect(() => mwallAnimation.finished.disconnect(onFinished))
+
+                mwallAnimation.finished.connect(scope.onFinished_nr)
                 return
             }
 
-            // pressed in btw opening to close
+            // pressed in btw opening so as to close
 
             if(sWallCtrl.reverse){
                 bwallDelay.stop()
@@ -87,18 +98,10 @@ Item {
                 bwallAnimation.start()
                 mwallDelay.start()
 
-                function onFinished (){
-                    console.log("c 2 o finished")
-                    sWallCtrl.isOpen = false
-                    sWallCtrl.anim_running = false
-                    swapStartEnd()
-                }
-                mwallAnimation.finished.connect(onFinished)
-                mwallAnimation.runningChanged.connect(() => mwallAnimation.finished.disconnect(onFinished))
-
+                mwallAnimation.finished.connect(scope.onFinished_nr)
                 return
 
-            // pressed in btw closing to open
+            // pressed in btw closing so as to open
             } else {
                 bwallDelay.stop()
                 mwallDelay.stop()
@@ -116,13 +119,7 @@ Item {
                 mwallAnimation.start()
                 bwallDelay.start()
 
-                function onFinished (){
-                    console.log("o 2 c finished")
-                    sWallCtrl.anim_running = false
-                    swapStartEnd()
-                }
-                bwallAnimation.finished.connect(onFinished)
-                bwallAnimation.runningChanged.connect(() => bwallAnimation.finished.disconnect(onFinished))
+                bwallAnimation.finished.connect(scope.onFinished_nlv)
                 return
             }
         }
@@ -150,7 +147,6 @@ Item {
             target: sWallCtrl
             property real startp: root.height * 0.8 + 60
             property real endp: 0
-            property bool reverse: false
             property: "mwall_offset"
             from: startp
             to: endp
@@ -173,12 +169,11 @@ Item {
             target: sWallCtrl
             property real startp: 100
             property real endp: 0
-            property bool reverse: false
             property: "bwall_offset"
             from: startp
             to: endp
             duration: 400
-            easing.type: Easing.InOutBack
+            easing.type: sWallCtrl.reverse ? Easing.InOutBack : Easing.InOutCirc
         }
 
         Timer {
@@ -256,21 +251,6 @@ Item {
         color: Qt.rgba(0.05, 0.05, 0.05, 0.75)
     }
 
-    Rectangle {
-        id: button
-        anchors.bottom: parent.bottom
-        anchors.right: parent.right
-        height: 50
-        width: 50
-        color: "red"
 
-        MouseArea {
-            anchors.fill: parent
-            onClicked: {
-                // upscale.visible = !upscale.visible
-                compositor.visible = !compositor.visible
-            }
-        }
-    }
 
 }
