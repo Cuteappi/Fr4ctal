@@ -293,6 +293,7 @@ Loader {
 				anchors.horizontalCenter: parent.horizontalCenter
 				height: 25
 				width: loader.screen.width * 0.6
+				clip: true
 
 				Text {
 					text: "Wallpaper"

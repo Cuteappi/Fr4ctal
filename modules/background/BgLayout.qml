@@ -10,45 +10,14 @@ Item {
     property ShellScreen screen
 
 
-    Scope {
-        id: scope
-        function swapStartEnd() {
-            if(sWallCtrl.reverse) {
-                bwallAnimation.from = bwallAnimation.endp
-                bwallAnimation.to = bwallAnimation.startp
-
-                mwallAnimation.from = mwallAnimation.endp
-                mwallAnimation.to = mwallAnimation.startp
-
-            } else {
-                bwallAnimation.from = bwallAnimation.startp
-                bwallAnimation.to = bwallAnimation.endp
-                
-                mwallAnimation.from = mwallAnimation.startp
-                mwallAnimation.to = mwallAnimation.endp
-            }
-        }
-
-        function onFinished_nlv(){
-            sWallCtrl.anim_running = false
-            swapStartEnd()
-        }
-
-        function onFinished_nr (){
-            sWallCtrl.isOpen = false
-            sWallCtrl.anim_running = false
-            swapStartEnd()
-        }
-    }
-
     Connections {
 		target: Signals
 		function onWallpaperPickerToggled() {
 
-            bwallAnimation.finished.disconnect(scope.onFinished_nlv)
-            bwallAnimation.finished.disconnect(scope.onFinished_nr)
-            mwallAnimation.finished.disconnect(scope.onFinished_nlv)
-            mwallAnimation.finished.disconnect(scope.onFinished_nr)
+            bwallAnimation.finished.disconnect(sWallCtrl.onFinished_nlv)
+            bwallAnimation.finished.disconnect(sWallCtrl.onFinished_nr)
+            mwallAnimation.finished.disconnect(sWallCtrl.onFinished_nlv)
+            mwallAnimation.finished.disconnect(sWallCtrl.onFinished_nr)
 
 
             //opening if fully closed
@@ -60,7 +29,7 @@ Item {
                 mwallAnimation.start()
                 bwallDelay.start()
 
-                bwallAnimation.finished.connect(scope.onFinished_nlv)
+                bwallAnimation.finished.connect(sWallCtrl.onFinished_nlv)
                 return 
                 
             }
@@ -75,7 +44,7 @@ Item {
                 mwallDelay.start()
 
 
-                mwallAnimation.finished.connect(scope.onFinished_nr)
+                mwallAnimation.finished.connect(sWallCtrl.onFinished_nr)
                 return
             }
 
@@ -98,7 +67,7 @@ Item {
                 bwallAnimation.start()
                 mwallDelay.start()
 
-                mwallAnimation.finished.connect(scope.onFinished_nr)
+                mwallAnimation.finished.connect(sWallCtrl.onFinished_nr)
                 return
 
             // pressed in btw closing so as to open
@@ -119,7 +88,7 @@ Item {
                 mwallAnimation.start()
                 bwallDelay.start()
 
-                bwallAnimation.finished.connect(scope.onFinished_nlv)
+                bwallAnimation.finished.connect(sWallCtrl.onFinished_nlv)
                 return
             }
         }
@@ -178,7 +147,7 @@ Item {
 
         Timer {
             id: bwallDelay
-            interval: 200
+            interval: 100
             running: false
             repeat: false
             onTriggered: {
@@ -194,6 +163,34 @@ Item {
             onTriggered: {
                 mwallAnimation.start()
             }
+        }
+
+        function swapStartEnd() {
+            if(sWallCtrl.reverse) {
+                bwallAnimation.from = bwallAnimation.endp
+                bwallAnimation.to = bwallAnimation.startp
+
+                mwallAnimation.from = mwallAnimation.endp
+                mwallAnimation.to = mwallAnimation.startp
+
+            } else {
+                bwallAnimation.from = bwallAnimation.startp
+                bwallAnimation.to = bwallAnimation.endp
+                
+                mwallAnimation.from = mwallAnimation.startp
+                mwallAnimation.to = mwallAnimation.endp
+            }
+        }
+
+        function onFinished_nlv(){
+            sWallCtrl.anim_running = false
+            swapStartEnd()
+        }
+
+        function onFinished_nr (){
+            sWallCtrl.isOpen = false
+            sWallCtrl.anim_running = false
+            swapStartEnd()
         }
     }
 

@@ -3,7 +3,6 @@ import QtQuick
 import Quickshell
 import Quickshell.Wayland
 import "../applets"
-import QtApplicationManager
 
 LazyLoader {
 	id: initLoader
@@ -55,8 +54,6 @@ LazyLoader {
 			}
 
 			Fps{}
-				
-
 		}	
 	}
 }

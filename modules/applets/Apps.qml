@@ -33,7 +33,6 @@ Item {
 		MouseArea {
 			anchors.fill: parent
 			onClicked: {
-				// upscale.visible = !upscale.visible
 				wallpaperPicker.visibility = !wallpaperPicker.visibility
 			}
 		}
