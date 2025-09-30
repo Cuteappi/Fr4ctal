@@ -21,21 +21,7 @@ Item {
 		id: wallpaperPicker
 		screen: root.screen
 	}
-	Rectangle {
-		id: button
-		x: root.screen.width - 50
-		y: root.screen.height - 50
-		height: 50
-		width: 50
-		color: "red"
 
-		MouseArea {
-			anchors.fill: parent
-			onClicked: {
-				wallpaperPicker.visibility = !wallpaperPicker.visibility
-			}
-		}
-	}
 }
 
 	

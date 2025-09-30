@@ -39,7 +39,15 @@ Loader {
 					loader.visibility = false
 					anim.from = anim.startp
 					anim.to = anim.endp
+
+					if (loader.screen.name != "DP-2") return
+					
+					if (WallpaperSettings.clickedOut) {
+						WallpaperSettings.clickedOut = false
+						return
+					}
 					Hyprland.dispatch(`focuswindow address:0x${WallpaperSettings.lastActiveWindow}`)
+					WallpaperSettings.clickedOut = false
 				}
 			}
 
@@ -49,7 +57,7 @@ Loader {
 					anim.finished.disconnect(scope.onFinished_nr)
 					anim.finished.disconnect(scope.onFinished_nlv)
 
-					listView.focus = !listView.focus
+					flickable.focus = !flickable.focus
 
 					if(!loader.visibility) {
 						loader.visibility = true
@@ -62,6 +70,7 @@ Loader {
 					}
 					if(!anim.running) {
 						anim.reverse = false
+
 						animDelay.start()
 
 						anim.finished.connect(scope.onFinished_nr)
@@ -137,13 +146,36 @@ Loader {
 				Item {
 					id: wallpaperPreview
 					anchors.fill: parent	
-					visible: false			
+					visible: false
+
+					property int currentImage: 1
+
+					Image{
+						id: wallpaperPreviewImage2
+						anchors.fill: parent
+						source: ""
+						fillMode: Image.PreserveAspectCrop
+
+						Behavior on opacity{
+							NumberAnimation{
+								duration: 500
+								easing.type: Easing.Linear
+							}
+						}
+					}
 
 					Image{
 						id: wallpaperPreviewImage
 						anchors.fill: parent
 						source: ""
 						fillMode: Image.PreserveAspectCrop
+
+						Behavior on opacity{
+							NumberAnimation{
+								duration: 500
+								easing.type: Easing.Linear
+							}
+						}
 					}
 
 					Rectangle{
@@ -170,116 +202,87 @@ Loader {
 					source: wallpaperPreview
 					anchors.margins: 10
 				}
+
+
+
 				
+				FolderListModel{
+					id: folderModel
+					folder: `file://${WallpaperSettings.wallpaperDir}`
+					showFiles: true
 
-				Item{
-					id: sourceRect
-					anchors.fill: parent
+					onStatusChanged: {
+						if (folderModel.status === FolderListModel.Ready) {
+							let url = folderModel.get(flickable.currentIndex, "filePath")
+							if (url === undefined) return
+							wallpaperPreviewImage.source = url
 
-					property real spacing: 20
-					clip: true
-
-					FolderListModel {
-						id: folderModel
-						folder: `file://${WallpaperSettings.wallpaperDir}`
-						showFiles: true
-					}
-					
-					Item{
-						anchors.fill: parent
-						anchors.margins: 10
-
-						ListView {
-							id: listView
-							anchors.centerIn: parent
-							height: parent.height
-							width: contentWidth
-							model: folderModel
-							spacing: sourceRect.spacing
-							orientation: ListView.Horizontal
-							displayMarginBeginning: 1000
-							displayMarginEnd: 1000
-							// focus: true
-
-							delegate: WallpaperListPreview {
-								listView: listView
-								source: sourceRect
-							}
-
-							header: Item {
-								anchors.top: parent.top
-								anchors.bottom: parent.bottom
-
-								width: sourceRect.width * 0.04
-								
-							}
-
-							footer: Item {
-								anchors.top: parent.top
-								anchors.bottom: parent.bottom
-
-								width: sourceRect.width * 0.04
-							}
-
-							onCurrentIndexChanged: {
-								wallpaperPreviewImage.source = folderModel.get(listView.currentIndex, "filePath")
-							}
-
-							
-
-							Component.onCompleted: {
-								let url = folderModel.get(listView.currentIndex, "filePath")
-								if (url === undefined) return
-								wallpaperPreviewImage.source = url
-							}
-
-
+							let url2 = folderModel.get(flickable.currentIndex + 1, "filePath")
+							if (url2 === undefined) return
+							wallpaperPreviewImage2.source = url2
 						}
 					}
 				}
 
+				Flickable{
+					id: flickable
+					anchors.fill: parent
+					anchors.margins: 10
+					clip: true
+
+					property int currentIndex: 0
+
+					onCurrentIndexChanged: {
+						if (wallpaperPreview.currentImage === 1) {
+							wallpaperPreviewImage2.source = folderModel.get(flickable.currentIndex, "filePath")
+							wallpaperPreviewImage.opacity = 0
+							wallpaperPreview.currentImage = 2
+
+						}else if(wallpaperPreview.currentImage === 2) {
+							wallpaperPreviewImage.source = folderModel.get(flickable.currentIndex, "filePath")
+							wallpaperPreviewImage.opacity = 1
+							wallpaperPreview.currentImage = 1
+						}
+					}
+
+					Row{
+						id: row
+						anchors.centerIn: parent
+						spacing: 20
 
 
-				
-				// FolderListModel{
-				// 	id: folderModel
-				// 	folder: `file://${WallpaperSettings.wallpaperDir}`
-				// 	showFiles: true
-				// }
+						Item {
+							id: header
+							width: 20
+							height: parent.height
+						}
 
-				// Flickable{
-				// 	id: flickable
-				// 	anchors.fill: parent
-				// 	focus: true
+						Repeater{
+							model: folderModel
+							anchors.fill: parent
 
-				// 	property int currentIndex: 0
+							delegate: WallpaperListPreview {
+								flickable: flickable
+								source: row
+								currentIndex: flickable.currentIndex
+							}
+						}
 
-				// 	onCurrentIndexChanged: {
-				// 		wallpaperPreviewImage.source = folderModel.get(flickable.currentIndex, "filePath")
-				// 	}
-				// 	Row{
-				// 		id: row
-				// 		// anchors.fill: parent
-				// 		spacing: 10
+						Item {
+							id: footer
+							width: 20
+							height: parent.height
+						}
+					}
 
-				// 		Repeater{
-				// 			model: folderModel
-				// 			anchors.fill: parent
-
-				// 			delegate: WallpaperListPreview {
-				// 				listView: flickable
-				// 				source: row
-				// 			}
-
-				// 			Component.onCompleted: {
-				// 				let url = folderModel.get(flickable.currentIndex, "filePath")
-				// 				console.log(url)
-				// 				if (url === undefined) return
-				// 				wallpaperPreviewImage.source = url
-				// 			}
-				// 		}
-				// 	}
-				// }
+					Keys.onPressed:(event)=> {
+						if (event.key === Qt.Key_Right) {
+							currentIndex = Math.min(currentIndex + 1, folderModel.count - 1)
+						}else if (event.key === Qt.Key_Left) {
+							currentIndex = Math.max(currentIndex - 1, 0)
+						}
+					}
+				}
 				
 
 			}

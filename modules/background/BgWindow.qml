@@ -65,7 +65,6 @@ LazyLoader {
 				target: Signals
 				function onWallpaperPickerGrabHandler(){
 					if (panel.screen.name == "DP-2") return
-					if(timer.running) timer.stop()
 					grab.active = !grab.active
 					grab.open = !grab.open
 				}
@@ -81,11 +80,6 @@ LazyLoader {
 				}
 			}
 
-			Timer{
-				id: timer
-				interval: 100
-			}
-
 			HyprlandFocusGrab{
 				id: grab
 				windows: [panel]
@@ -93,6 +87,7 @@ LazyLoader {
 				onCleared:{
 					console.log("in")
 					if(!grab.active && panel.screen.name != "DP-2"){
+						WallpaperSettings.clickedOut = true
 						Signals.wallpaperPickerToggled()
 						grab.open = false
 					}

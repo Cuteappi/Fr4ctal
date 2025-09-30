@@ -10,17 +10,31 @@ Item{
 	id: root
 	required property string filePath
 	required property string fileName
-	property ListView listView
+	property Flickable flickable
+	required property int currentIndex
+	required property int index
 	property Item source
 
-	height: listView.parent.height
-	width: listView.parent.width * 0.04
+	height: flickable.parent.height
+	width: flickable.parent.width * 0.04
 
 	Item {
-		anchors.fill: parent
+		id: container
+		anchors.centerIn: parent
+		height: parent.height * 0.6
+		width: parent.width
 
-		anchors.topMargin: parent.height * 0.125
-		anchors.bottomMargin: parent.height * 0.125
+		property var easing: Easing.InOutQuint
+
+
+		anchors.verticalCenterOffset: root.index == root.currentIndex ?  -imgBezierRectangle.width : 0
+
+		Behavior on anchors.verticalCenterOffset{
+			NumberAnimation{
+				duration: 400
+				easing.type: container.easing
+			}
+		}
 
 		Image {
 			id: img
@@ -28,6 +42,7 @@ Item{
 			source: root.filePath
 			fillMode: Image.PreserveAspectCrop
 			visible: false
+			cache: true
 		}
 
 		ImgBezierRectangle {
@@ -42,14 +57,36 @@ Item{
 		Item{
 			id: name
 			anchors.bottom: imgBezierRectangle.top
-			anchors.bottomMargin: 10
+			anchors.bottomMargin: 20
 			width: imgBezierRectangle.width
 			height: 10
 
 			Text {
+				id: text
 				text: root.fileName
 				anchors.centerIn: parent
 				color: "white"
+				visible: false
+				font.pixelSize: 14
+			}
+
+			DropShadow {
+				id: dropShadow
+				anchors.fill: text
+				source: text
+				radius: 6
+				samples: 8
+				horizontalOffset: 1
+				verticalOffset: 1
+				color: Qt.rgba(0.0, 0.0, 0.0, 1)
+			}
+			opacity: root.index === root.currentIndex ? 1 : 0
+
+			Behavior on opacity{
+				NumberAnimation{
+					duration: 400
+					easing.type: container.easing
+				}
 			}
 		}
 
@@ -64,6 +101,15 @@ Item{
 			border.color: "white"
 			border.width: 2
 			radius: imgBezierRectangle.width * 0.25
+			opacity: root.index === root.currentIndex ? 1 : 0
+
+			Behavior on opacity{
+				NumberAnimation{
+					duration: 400
+					easing.type: container.easing
+				}
+			}
+
 		}
 	}
 }
