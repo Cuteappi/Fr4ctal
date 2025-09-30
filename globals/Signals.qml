@@ -4,4 +4,5 @@ import Quickshell
 
 Scope{
 	signal wallpaperPickerToggled()
+	signal wallpaperPickerGrabHandler()
 }

@@ -1,20 +1,20 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
-import QtQuick.Shapes
-import Qt5Compat.GraphicalEffects
 import Qt.labs.folderlistmodel
 import Quickshell
+import Quickshell.Hyprland
 import "../wallpaper"
-import "../../components"
 import "../background"
 import "../../globals"
+import "../../components"
 
 Loader {
 	id: loader
 	asynchronous: true
 	active: true
 	sourceComponent: rect
+	focus: true
 
 	property ShellScreen screen
 	property bool visibility: false
@@ -48,6 +48,8 @@ Loader {
 				function onWallpaperPickerToggled() {
 					anim.finished.disconnect(scope.onFinished_nr)
 					anim.finished.disconnect(scope.onFinished_nlv)
+
+					listView.focus = !listView.focus
 
 					if(!loader.visibility) {
 						// console.log("n vis")
@@ -130,21 +132,24 @@ Loader {
 				width: (loader.screen.width - BgSettings.rightWidth - BgSettings.leftWidth) * 0.6
 
 				anchors.verticalCenterOffset: loader.screen.height * 0.8 + 60
+
 				
+				
+				// The bg with the gradient overlay
 				Item {
-					id: wallpaperImagePreviewContainer
+					id: wallpaperPreview
 					anchors.fill: parent	
 					visible: false			
 
 					Image{
-						id: wallpaperImagePreview
+						id: wallpaperPreviewImage
 						anchors.fill: parent
 						source: ""
 						fillMode: Image.PreserveAspectCrop
 					}
 
 					Rectangle{
-						id: wallpaperImagePreviewOverlay
+						id: wallpaperPreviewImageOverlay
 						anchors.fill: parent
 						gradient: Gradient {
 							GradientStop {
@@ -159,83 +164,19 @@ Loader {
 					}
 				}
 
-				Shape {
+				ImgBezierRectangle {
 					id: shape
 					anchors.fill: parent
-
-					preferredRendererType: Shape.CurveRenderer
-					smooth: true
-					antialiasing: true
-
-					ShapePath {
-						id: shapePath
-						strokeWidth: 0
-						fillColor: "white"
-
-						property real radius: shape.width > shape.height ? (shape.height / 2) * 0.1 : (shape.width / 2) * 0.1
-						property real roundingStrength: 1 - 0.9
-
-						startX: 0 + radius
-						startY: 0
-
-						PathLine{ x: shape.width - shapePath.radius; y: 0}
-
-						// Top right				
-						PathCubic{ x: shape.width; y: shapePath.radius; 
-							control1X: shape.width - shapePath.radius * shapePath.roundingStrength; 
-							control1Y: 0;
-							control2X: shape.width; 
-							control2Y: shapePath.radius * shapePath.roundingStrength;
-						}
-						PathLine{ x: shape.width; y: shape.height - shapePath.radius}
-
-						//Bottom right				
-						PathCubic{ x: shape.width - shapePath.radius; y: shape.height; 
-							control1X: shape.width; 
-							control1Y: shape.height - shapePath.radius * shapePath.roundingStrength;
-							control2X: shape.width - shapePath.radius * shapePath.roundingStrength; 
-							control2Y: shape.height;
-						}
-						PathLine{ x: shapePath.radius ; y: shape.height}
-
-						//Bottom left				
-						PathCubic{ x: 0 ; y: shape.height - shapePath.radius; 
-							control1X: shapePath.radius * shapePath.roundingStrength; 
-							control1Y: shape.height; 
-							control2X: 0; 
-							control2Y: shape.height - shapePath.radius * shapePath.roundingStrength;
-						}
-						PathLine{ x: 0 ; y: shapePath.radius}
-
-						//Top left				
-						PathCubic{ x: shapePath.radius ; y: 0; 
-							control1X: 0; 
-							control1Y: shapePath.radius * shapePath.roundingStrength; 
-							control2X: shapePath.radius * shapePath.roundingStrength; 
-							control2Y: 0
-						}
-					}
-				}
-
-				ShaderEffectSource {
-					id: maskSource
-					sourceItem: shape
-					hideSource: true
-				}
-
-				OpacityMask {
-					anchors.fill: parent
+					radius: 0.1
+					roundingStrength: 0.9
+					source: wallpaperPreview
 					anchors.margins: 10
-					source: wallpaperImagePreviewContainer
-					maskSource: maskSource
 				}
+				
 
-				Rectangle{
+				Item{
 					id: sourceRect
-					color: "transparent"
-					anchors.centerIn: parent
-					height: parent.height
-					width: parent.width
+					anchors.fill: parent
 
 					property real spacing: 20
 
@@ -244,6 +185,7 @@ Loader {
 						folder: `file://${WallpaperSettings.wallpaperDir}`
 						showFiles: true
 					}
+				
 
 					ListView {
 						id: listView
@@ -254,10 +196,11 @@ Loader {
 						model: folderModel
 						spacing: sourceRect.spacing
 						orientation: ListView.Horizontal
+						// focus: true
 
-						delegate: WallaperListPreview {
+						delegate: WallpaperListPreview {
 							listView: listView
-							sourceRect: sourceRect
+							source: sourceRect
 						}
 
 						header: Item {
@@ -276,16 +219,21 @@ Loader {
 						}
 
 						onCurrentIndexChanged: {
-							wallpaperImagePreview.source = folderModel.get(listView.currentIndex, "filePath")
+							wallpaperPreviewImage.source = folderModel.get(listView.currentIndex, "filePath")
 						}
+
+						
 
 						Component.onCompleted: {
 							let url = folderModel.get(listView.currentIndex, "filePath")
 							if (url === undefined) return
-							wallpaperImagePreview.source = url
+							wallpaperPreviewImage.source = url
 						}
+
+
 					}
 				}
+
 			}
 
 			Item {

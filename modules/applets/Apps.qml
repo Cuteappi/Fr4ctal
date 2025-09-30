@@ -2,7 +2,6 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import Quickshell
-import Quickshell.Hyprland
 import "../background"
 import "../../globals"
 
@@ -18,7 +17,7 @@ Item {
 
 	property ShellScreen screen
 
-	WallpaperPicker {
+	Wallpaper {
 		id: wallpaperPicker
 		screen: root.screen
 	}

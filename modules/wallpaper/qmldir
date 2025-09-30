@@ -4,3 +4,5 @@ singleton WallpaperSettings WallpaperSettings.qml
 
 Wallpaper 1.0 Wallpaper.qml
 S3wClone 1.0 S3wClone.qml
+WallapaperScrollable 1.0 WallapaperScrollable.qml
+WallpaperListPreview 1.0 WallpaperListPreview.qml
