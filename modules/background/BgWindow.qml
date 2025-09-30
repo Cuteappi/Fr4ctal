@@ -5,6 +5,7 @@ import Quickshell.Wayland
 import Quickshell.Hyprland
 import "../applets"
 import "../../globals"
+import "../wallpaper"
 
 
 LazyLoader {
@@ -27,7 +28,6 @@ LazyLoader {
 			WlrLayershell.namespace: "xyra"
 			WlrLayershell.exclusionMode: ExclusionMode.Ignore
 
-
 			Rectangle{
 				id: mask
 
@@ -40,7 +40,9 @@ LazyLoader {
 			}
 			
 			mask: BgMaskRegion {
+				id: maskRegion
 				mask: mask
+
 				screen: panel.screen
 			}
 
@@ -63,29 +65,41 @@ LazyLoader {
 				target: Signals
 				function onWallpaperPickerGrabHandler(){
 					if (panel.screen.name == "DP-2") return
+					if(timer.running) timer.stop()
 					grab.active = !grab.active
 					grab.open = !grab.open
 				}
+
+			}
+
+			Connections{
+				target:Hyprland
+				function onRawEvent(event){
+					if (event.name == "activewindowv2") {
+						WallpaperSettings.lastActiveWindow = event.parse(1).toString()
+					}
+				}
+			}
+
+			Timer{
+				id: timer
+				interval: 100
 			}
 
 			HyprlandFocusGrab{
 				id: grab
 				windows: [panel]
 				property bool open: false
-
 				onCleared:{
+					console.log("in")
 					if(!grab.active && panel.screen.name != "DP-2"){
-						console.log("in")
-							
 						Signals.wallpaperPickerToggled()
 						grab.open = false
 					}
 				}
-
-				property string lastFocusedWindow: ""
-				property string lastFocusedWindowMonitor:""
 			}
-			
+			property bool active:false
+
 		}	
 	}
 }

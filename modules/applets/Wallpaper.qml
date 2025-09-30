@@ -39,9 +39,9 @@ Loader {
 					loader.visibility = false
 					anim.from = anim.startp
 					anim.to = anim.endp
+					Hyprland.dispatch(`focuswindow address:0x${WallpaperSettings.lastActiveWindow}`)
 				}
 			}
-
 
 			Connections {
 				target: Signals
@@ -52,7 +52,6 @@ Loader {
 					listView.focus = !listView.focus
 
 					if(!loader.visibility) {
-						// console.log("n vis")
 						loader.visibility = true
 						anim.reverse = true
 
@@ -62,7 +61,6 @@ Loader {
 						return
 					}
 					if(!anim.running) {
-						// console.log("n running")
 						anim.reverse = false
 						animDelay.start()
 
@@ -179,60 +177,110 @@ Loader {
 					anchors.fill: parent
 
 					property real spacing: 20
+					clip: true
 
 					FolderListModel {
 						id: folderModel
 						folder: `file://${WallpaperSettings.wallpaperDir}`
 						showFiles: true
 					}
-				
+					
+					Item{
+						anchors.fill: parent
+						anchors.margins: 10
 
-					ListView {
-						id: listView
-						anchors.centerIn: parent
-						height: parent.height
-						width: contentWidth
-						clip: true
-						model: folderModel
-						spacing: sourceRect.spacing
-						orientation: ListView.Horizontal
-						// focus: true
+						ListView {
+							id: listView
+							anchors.centerIn: parent
+							height: parent.height
+							width: contentWidth
+							model: folderModel
+							spacing: sourceRect.spacing
+							orientation: ListView.Horizontal
+							displayMarginBeginning: 1000
+							displayMarginEnd: 1000
+							// focus: true
 
-						delegate: WallpaperListPreview {
-							listView: listView
-							source: sourceRect
-						}
+							delegate: WallpaperListPreview {
+								listView: listView
+								source: sourceRect
+							}
 
-						header: Item {
-							anchors.top: parent.top
-							anchors.bottom: parent.bottom
+							header: Item {
+								anchors.top: parent.top
+								anchors.bottom: parent.bottom
 
-							width: sourceRect.width * 0.04
+								width: sourceRect.width * 0.04
+								
+							}
+
+							footer: Item {
+								anchors.top: parent.top
+								anchors.bottom: parent.bottom
+
+								width: sourceRect.width * 0.04
+							}
+
+							onCurrentIndexChanged: {
+								wallpaperPreviewImage.source = folderModel.get(listView.currentIndex, "filePath")
+							}
+
 							
+
+							Component.onCompleted: {
+								let url = folderModel.get(listView.currentIndex, "filePath")
+								if (url === undefined) return
+								wallpaperPreviewImage.source = url
+							}
+
+
 						}
-
-						footer: Item {
-							anchors.top: parent.top
-							anchors.bottom: parent.bottom
-
-							width: sourceRect.width * 0.04
-						}
-
-						onCurrentIndexChanged: {
-							wallpaperPreviewImage.source = folderModel.get(listView.currentIndex, "filePath")
-						}
-
-						
-
-						Component.onCompleted: {
-							let url = folderModel.get(listView.currentIndex, "filePath")
-							if (url === undefined) return
-							wallpaperPreviewImage.source = url
-						}
-
-
 					}
 				}
+
+
+
+				
+				// FolderListModel{
+				// 	id: folderModel
+				// 	folder: `file://${WallpaperSettings.wallpaperDir}`
+				// 	showFiles: true
+				// }
+
+				// Flickable{
+				// 	id: flickable
+				// 	anchors.fill: parent
+				// 	focus: true
+
+				// 	property int currentIndex: 0
+
+				// 	onCurrentIndexChanged: {
+				// 		wallpaperPreviewImage.source = folderModel.get(flickable.currentIndex, "filePath")
+				// 	}
+				// 	Row{
+				// 		id: row
+				// 		// anchors.fill: parent
+				// 		spacing: 10
+
+				// 		Repeater{
+				// 			model: folderModel
+				// 			anchors.fill: parent
+
+				// 			delegate: WallpaperListPreview {
+				// 				listView: flickable
+				// 				source: row
+				// 			}
+
+				// 			Component.onCompleted: {
+				// 				let url = folderModel.get(flickable.currentIndex, "filePath")
+				// 				console.log(url)
+				// 				if (url === undefined) return
+				// 				wallpaperPreviewImage.source = url
+				// 			}
+				// 		}
+				// 	}
+				// }
+				
 
 			}
 

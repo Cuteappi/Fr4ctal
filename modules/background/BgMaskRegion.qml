@@ -8,6 +8,7 @@ Region {
 	required property Rectangle mask
 	required property ShellScreen screen
 	item: mask
+	property bool wallpaperPickerToggle: false
 
 	Region {
 		id: wallpaperPickerRegion
@@ -29,7 +30,7 @@ Region {
 				}
 			}
 		}
-		intersection: Intersection.Combine
+		intersection: root.wallpaperPickerToggle ? Intersection.Subtract :Intersection.Combine
 	}
 
 

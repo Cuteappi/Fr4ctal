@@ -10,7 +10,7 @@ Item{
 	id: root
 	required property string filePath
 	required property string fileName
-	property ListView listView
+	property Flickable listView
 	property Item source
 
 	height: listView.parent.height
@@ -54,7 +54,7 @@ Item{
 		}
 
 		Rectangle{
-			id: circle
+			id: cirlce
 			anchors.top: imgBezierRectangle.bottom
 			anchors.horizontalCenter: imgBezierRectangle.horizontalCenter
 			anchors.topMargin: 10
