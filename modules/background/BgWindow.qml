@@ -6,6 +6,7 @@ import Quickshell.Hyprland
 import "../applets"
 import "../../globals"
 import "../wallpaper"
+import "../bars"
 
 
 LazyLoader {
@@ -55,11 +56,16 @@ LazyLoader {
 				screen: panel.screen
 			}
 
+			Bar {}
+
 			Apps{
 				screen: panel.screen
 			}
 
 			Fps{}
+
+
+
 
 			Connections{
 				target: Signals

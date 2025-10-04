@@ -58,6 +58,7 @@ Loader {
 					anim.finished.disconnect(scope.onFinished_nlv)
 
 					flickable.focus = !flickable.focus
+					// imageSelectorContainer.focus = !imageSelectorContainer.focus
 
 					if(!loader.visibility) {
 						loader.visibility = true
@@ -224,6 +225,10 @@ Loader {
 					}
 				}
 
+				
+
+
+
 				Flickable{
 					id: flickable
 					anchors.fill: parent
@@ -277,14 +282,77 @@ Loader {
 
 					Keys.onPressed:(event)=> {
 						if (event.key === Qt.Key_Right) {
-							currentIndex = Math.min(currentIndex + 1, folderModel.count - 1)
+							if (currentIndex === folderModel.count - 1) {
+								currentIndex = 0 
+								return
+							}
+							currentIndex++
 						}else if (event.key === Qt.Key_Left) {
-							currentIndex = Math.max(currentIndex - 1, 0)
+							if (currentIndex === 0) {
+								currentIndex = folderModel.count - 1
+								return
+							}
+							currentIndex--
 						}
 					}
 				}
 				
+			// 	Item{
+			// 		id: imageSelectorContainer
+			// 		anchors.fill: parent
+			// 		anchors.margins: 10
+			// 		clip: true
 
+			// 		property int currentIndex: 0
+
+			// 		ImageSelector2 {
+			// 			id: imageSelector
+			// 			anchors.fill: parent
+
+			// 			direction: 0
+			// 			model: folderModel
+			// 			currentIndex: imageSelectorContainer.currentIndex
+						
+						
+
+			// 		}
+
+			// 		onCurrentIndexChanged: {
+			// 			if (wallpaperPreview.currentImage === 1) {
+			// 				wallpaperPreviewImage2.source = folderModel.get(imageSelectorContainer.currentIndex, "filePath")
+			// 				wallpaperPreviewImage.opacity = 0
+			// 				wallpaperPreview.currentImage = 2
+
+			// 			}else if(wallpaperPreview.currentImage === 2) {
+			// 				wallpaperPreviewImage.source = folderModel.get(imageSelectorContainer.currentIndex, "filePath")
+			// 				wallpaperPreviewImage.opacity = 1
+			// 				wallpaperPreview.currentImage = 1
+			// 			}
+
+						
+			// 		}
+
+			// 		Keys.onPressed:(event)=> {
+			// 			if (event.key === Qt.Key_Right) {
+			// 				if (currentIndex === folderModel.count - 1) {
+			// 					imageSelector.direction = 1
+			// 					currentIndex = 0 
+			// 					return
+			// 				}
+			// 				imageSelector.direction = 1
+			// 				currentIndex++
+			// 			}else if (event.key === Qt.Key_Left) {
+			// 				if (currentIndex === 0) {
+			// 					imageSelector.direction = -1
+			// 					currentIndex = folderModel.count - 1
+			// 					return
+			// 				}
+			// 				imageSelector.direction = -1
+			// 				currentIndex--
+			// 			}
+			// 		}
+					
+			// 	}
 			}
 
 			Item {
